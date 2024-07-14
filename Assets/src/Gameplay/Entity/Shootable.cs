@@ -6,6 +6,11 @@ public abstract class Shootable : Damageable {
     public EventHandler<Projectile> onShot;
     public UnityEvent onShotEvent;
 
+    /// <summary>
+    /// Flag that allows detectors to detect or not this entity
+    /// </summary>
+    public bool invisible;
+
     protected override void SubscribeToEventHandlers() {
         base.SubscribeToEventHandlers();
         onShot += OnShot;
