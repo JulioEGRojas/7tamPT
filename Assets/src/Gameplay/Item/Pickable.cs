@@ -7,6 +7,11 @@ public class Pickable : MonoBehaviour {
     public EventHandler<Picker> onPickedUp;
     public UnityEvent onPickEvent;
 
+    /// <summary>
+    /// Last entity that picked up this object
+    /// </summary>
+    protected Picker lastPicker;
+
     private void Awake() {
         onPickedUp += OnPick;
     }
@@ -16,6 +21,7 @@ public class Pickable : MonoBehaviour {
     }
 
     public void Pickup(Picker picker) {
+        lastPicker = picker;
         onPickedUp?.Invoke(this, picker);
     }
 
