@@ -18,7 +18,6 @@ public class UIManager : MonoBehaviour {
     }
 
     private void UpdateCoinText(object sender, ScriptableValueChangedEvent<int> e) {
-        Debug.Log("WUt");
         coinsText.text = "" + e.newValue;
     }
 }

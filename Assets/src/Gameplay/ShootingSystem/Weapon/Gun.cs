@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -9,10 +10,6 @@ public class Gun : Weapon {
     /// Pool of projectiles. Contains a field for the sample projectile this gun will shoot.
     /// </summary>
     [SerializeField] private ProjectilePool _projectilePool;
-
-    [SerializeField] private ShootableAutoDetector entityDetector;
-    
-    [SerializeField] private Transform muzzleLocation; // The place where bullets come out of
     
     /// <summary>
     /// Number of bullet the gun fires each time it shoots
@@ -24,8 +21,19 @@ public class Gun : Weapon {
     /// </summary>
     [Range(0,45)]
     [SerializeField] private float dispersion = 0;
+    
+    [Header("Aiming")]
+    [SerializeField] private ShootableAutoDetector entityDetector; // This object detects the entities. You can change the size of this object's collider to increase weapon range.
+    
+    [SerializeField] private Transform muzzleLocation; // The place where bullets come out of.
+
+    [SerializeField] private GameObject crossHair; // Shows where the gun is aiming at.
+
+    [SerializeField] private Vector3 crossHairOffset; // How much it moves crosshair when aiming at a target.
 
     [SerializeField] private Shootable target;
+
+    private const float TARGET_UPDATE_TICK = 0.1f; 
 
     private void Awake() {
         entityDetector.onObjectDetected += TryUpdateTarget;
@@ -37,12 +45,31 @@ public class Gun : Weapon {
         entityDetector.onObjectLost -= TryUpdateTarget;
     }
 
+    private void OnEnable() {
+        StartCoroutine(UpdateTargetEach(TARGET_UPDATE_TICK));
+    }
+
+    private void OnDisable() {
+        StopCoroutine(UpdateTargetEach(TARGET_UPDATE_TICK));
+    }
+
     private void Update() {
         // Rotate towards target, if it exists
         if (!target) {
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.right);
+            crossHair.gameObject.SetActive(false);
             return;
         }
+        crossHair.gameObject.SetActive(true);
+        crossHair.transform.position = target.transform.position + crossHairOffset;
         transform.rotation = Quaternion.LookRotation(Vector3.forward, target.transform.position - transform.position);
+    }
+    
+    public IEnumerator UpdateTargetEach(float seconds) {
+        while (true) {
+            yield return new WaitForSeconds(seconds);
+            TryUpdateTarget(this,null);
+        }
     }
     
     private void TryUpdateTarget(object sender, Shootable shootable) {
@@ -74,9 +101,9 @@ public class Gun : Weapon {
         Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
         Gizmos.color = transparentRed;
         Mesh angleMesh = new Mesh();
-        Vector3 minDispersionAnglePosition = transform.position + Quaternion.AngleAxis(dispersion, Vector3.forward) * transform.up;
-        Vector3 maxDispersionAnglePosition = transform.position + Quaternion.AngleAxis(-dispersion, Vector3.forward) * transform.up;
-        angleMesh.vertices = new[] { transform.position, minDispersionAnglePosition, maxDispersionAnglePosition };
+        Vector3 minDispersionAnglePosition = muzzleLocation.position + Quaternion.AngleAxis(dispersion, Vector3.forward) * transform.up;
+        Vector3 maxDispersionAnglePosition = muzzleLocation.position + Quaternion.AngleAxis(-dispersion, Vector3.forward) * transform.up;
+        angleMesh.vertices = new[] { muzzleLocation.position, minDispersionAnglePosition, maxDispersionAnglePosition };
         angleMesh.triangles = new[] { 0, 1, 2 };
         angleMesh.RecalculateNormals();
         angleMesh.RecalculateTangents();
