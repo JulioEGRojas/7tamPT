@@ -36,4 +36,8 @@ public class GameObjectExtensions : MonoBehaviour {
     public void ClearParent() {
         transform.parent = null;
     }
+
+    public void SelfDestroy() {
+        Destroy(gameObject);
+    }
 }

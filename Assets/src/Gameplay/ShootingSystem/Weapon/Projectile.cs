@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour {
+    
+    [SerializeField] private int damage = 1;
+    public int Damage => damage;
 
     [SerializeField] private float speed = 1f;
 
@@ -29,11 +32,18 @@ public class Projectile : MonoBehaviour {
         transform.Translate(Time.fixedDeltaTime * speed * Vector2.up);
     }
 
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.TryGetComponent(out Shootable shootable)) {
+            Impact(shootable);
+        }
+    }
+
     public void Impact(Shootable shootable) {
         onLifeSpanFinished?.Invoke(this,this);
         CancelInvoke();
         if (!shootable) {
             return;
         }
+        shootable.ReceiveProjectile(this);
     }
 }
