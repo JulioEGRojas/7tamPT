@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public abstract class Shootable : MonoBehaviour {
+public abstract class Shootable : Damageable {
 
     public UnityEvent onShot;
 

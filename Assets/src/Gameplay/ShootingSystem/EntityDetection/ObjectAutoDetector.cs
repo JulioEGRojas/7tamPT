@@ -1,16 +1,17 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class ObjectDetector<T> : MonoBehaviour where T : MonoBehaviour {
+public abstract class ObjectAutoDetector<T> : MonoBehaviour where T : MonoBehaviour {
     
     [Header("Auto Detection")]
-    [SerializeField] private bool autoDetect = true;
-    
     /// <summary>
     /// Entities close to the entity
     /// </summary>
     public List<T> detectedObjects;
+
+    public bool isEmpty => detectedObjects.Count == 0;
     
     /// <summary>
     /// Only entities with this hit tag will be added to detected entities
@@ -20,21 +21,17 @@ public abstract class ObjectDetector<T> : MonoBehaviour where T : MonoBehaviour 
     protected HashSet<string> _tagsToDetect = new HashSet<string>();
 
     private float _manualDetectionDistance = 5f;
+
+    public EventHandler<T> onObjectDetected;
     
-    private Collider _detectionCollider;
+    public EventHandler<T> onObjectLost;
 
     private void Awake() {
         detectedObjects = new List<T>();
         _tagsToDetect = tagsToDetect.ToHashSet();
-        // Start manual detection if set to manually detect
-        if (!autoDetect) {
-            foreach (Collider c in GetComponents<Collider>()) {
-                c.enabled = false;
-            }
-        }
     }
 
-    protected virtual void OnTriggerEnter(Collider other) {
+    protected virtual void OnTriggerEnter2D(Collider2D other) {
         // Ignore if collided tag isn't registered
         if (!_tagsToDetect.Contains(other.tag)) {
             return;
@@ -44,7 +41,7 @@ public abstract class ObjectDetector<T> : MonoBehaviour where T : MonoBehaviour 
         }
     }
 
-    protected virtual void OnTriggerExit(Collider other) {
+    protected virtual void OnTriggerExit2D(Collider2D other) {
         if (other.TryGetComponent(out T detectedObject) && TryRemoveFromDetected(detectedObject)) {
             OnObjectLost(detectedObject);
         }
@@ -66,11 +63,18 @@ public abstract class ObjectDetector<T> : MonoBehaviour where T : MonoBehaviour 
         return false;
     }
 
-    public abstract void OnObjectDetected(T detectedObject);
+    public virtual void OnObjectDetected(T detectedObject) {
+        onObjectDetected?.Invoke(this, detectedObject);
+    }
 
-    public abstract void OnObjectLost(T detectedObject);
+    public virtual void OnObjectLost(T lostObject){
+        onObjectLost?.Invoke(this, lostObject);
+    }
     
     public T GetClosestObject() {
+        if (isEmpty) {
+            return null;
+        }
         // Order list by closest. WARNING : May be expensive
         T[] orderedObjects = detectedObjects.OrderBy(obj => Vector3.Distance(obj.transform.position, transform.position)).ToArray();
         return orderedObjects.Any() ? orderedObjects.First() : null;
