@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+/// <summary>
+/// This class allows events to be fired and listened at will. Very useful to avoid spagueti code by breaking cross
+/// references between classes. Also allows for reduced hard coding if used with the generic event broadcaster component.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class EventBroadCaster<T> : ScriptableObject, IEventBroadcaster<T> where T:EventArgs  {
     
     private HashSet<EventHandler<T>> eventListeners = new HashSet<EventHandler<T>>();

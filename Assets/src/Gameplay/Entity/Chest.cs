@@ -1,7 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Chests spawn loot when shot at.
+/// </summary>
 public class Chest : Shootable {
 
     [SerializeField] private GameObject[] lootWhenShot;

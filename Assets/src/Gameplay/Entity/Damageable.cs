@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// Contains health and operations for manipulating it, and callbacks for detecting and acting when health changes.
+/// </summary>
 public abstract class Damageable : MonoBehaviour {
 
     [SerializeField] protected int health;

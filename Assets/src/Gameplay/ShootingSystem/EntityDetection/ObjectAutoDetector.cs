@@ -17,7 +17,6 @@ public abstract class ObjectAutoDetector<T> : MonoBehaviour where T : MonoBehavi
     /// Only entities with this hit tag will be added to detected entities
     /// </summary>
     public string[] tagsToDetect;
-
     protected HashSet<string> _tagsToDetect = new HashSet<string>();
 
     private float _manualDetectionDistance = 5f;
@@ -31,6 +30,10 @@ public abstract class ObjectAutoDetector<T> : MonoBehaviour where T : MonoBehavi
         _tagsToDetect = tagsToDetect.ToHashSet();
     }
 
+    /// <summary>
+    /// Try to register entity that entered, only if it has the required component and has a tag compatible.
+    /// </summary>
+    /// <param name="other"></param>
     protected virtual void OnTriggerEnter2D(Collider2D other) {
         // Ignore if collided tag isn't registered
         if (!_tagsToDetect.Contains(other.tag)) {
@@ -41,6 +44,10 @@ public abstract class ObjectAutoDetector<T> : MonoBehaviour where T : MonoBehavi
         }
     }
 
+    /// <summary>
+    /// Try to remove the entity
+    /// </summary>
+    /// <param name="other"></param>
     protected virtual void OnTriggerExit2D(Collider2D other) {
         if (other.TryGetComponent(out T detectedObject) && TryRemoveFromDetected(detectedObject)) {
             OnObjectLost(detectedObject);
@@ -71,6 +78,11 @@ public abstract class ObjectAutoDetector<T> : MonoBehaviour where T : MonoBehavi
         onObjectLost?.Invoke(this, lostObject);
     }
     
+    /// <summary>
+    /// Tries to get the closest object. Will return null if list is empty. Removes null entries each time it's called.
+    /// Will need rework if intended for a release version.
+    /// </summary>
+    /// <returns></returns>
     public T GetClosestObject() {
         if (isEmpty) {
             return null;

@@ -7,9 +7,7 @@ using Random = UnityEngine.Random;
 public class Gun : Weapon {
 
     [Header("Shooting")]
-    /// <summary>
-    /// Pool of projectiles. Contains a field for the sample projectile this gun will shoot.
-    /// </summary>
+    [Tooltip("Projectile's pool optimization for mobile devices. You can configure the gun damage per shot by editing the sample here.")]
     [SerializeField] private ProjectilePool _projectilePool;
     
     /// <summary>
@@ -18,25 +16,32 @@ public class Gun : Weapon {
     [SerializeField] private uint bulletsPerShot = 1;
 
     /// <summary>
-    /// How much degrees the shot may move when shooting a target.
+    /// How much degrees the shot may move when shooting a target. This angle is rendered on the gizmos.
     /// </summary>
     [Range(0,45)]
     [SerializeField] private float dispersion = 0;
 
+    /// <summary>
+    /// Callbacks when the gun shoots.
+    /// </summary>
     public EventHandler onShoot;
     [SerializeField] public UnityEvent onShootEvent;
     
     [Header("Aiming")]
-    [SerializeField] private ShootableAutoDetector entityDetector; // This object detects the entities. You can change the size of this object's collider to increase weapon range.
+    [Tooltip("Entity Detector. Change the size of this object's collider to increase weapon range.")]
+    [SerializeField] private ShootableAutoDetector entityDetector; 
     
     [SerializeField] private Transform muzzleLocation; // The place where bullets come out of.
 
-    [SerializeField] private GameObject crossHair; // Shows where the gun is aiming at.
+    [SerializeField] private GameObject crossHair; // Shows where the target the gun is aiming at.
 
     [SerializeField] private Vector3 crossHairOffset; // How much it moves crosshair when aiming at a target.
 
-    [SerializeField] private Shootable target;
+    [SerializeField] private Shootable target; // Current target of this gun
 
+    /// <summary>
+    /// Time between each target update.
+    /// </summary>
     private const float TARGET_UPDATE_TICK = 0.1f; 
 
     private void Awake() {
@@ -70,7 +75,12 @@ public class Gun : Weapon {
         crossHair.transform.position = target.transform.position + crossHairOffset;
         transform.rotation = Quaternion.LookRotation(Vector3.forward, target.transform.position - transform.position);
     }
-    
+
+    /// <summary>
+    /// We try to update the target periodically. Can't do it every frame because older devices may lag. 
+    /// </summary>
+    /// <param name="seconds"></param>
+    /// <returns></returns>
     public IEnumerator UpdateTargetEach(float seconds) {
         while (true) {
             yield return new WaitForSeconds(seconds);
@@ -78,6 +88,12 @@ public class Gun : Weapon {
         }
     }
     
+    /// <summary>
+    /// Tries to update the target, picking up the closest object. Used in callback form so that object detectors
+    /// can use it.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="shootable"></param>
     private void TryUpdateTarget(object sender, Shootable shootable) {
         target = entityDetector.GetClosestObject();
     }
@@ -86,12 +102,16 @@ public class Gun : Weapon {
         Shoot();
     }
 
+    /// <summary>
+    /// Fires, instantiating the amount of bullets specified in the configuration. 
+    /// </summary>
     public void Shoot() {
         if (bulletsPerShot <= 0) {
             return;
         }
         onShoot?.Invoke(this,null);
         for (int i = 0; i < bulletsPerShot; i++) {
+            // At instantiating, bullets are activated and rotated to face into the gun's rotation.
             Projectile projectile = _projectilePool.OccupyOne();
             projectile.transform.position = muzzleLocation.position;
             projectile.gameObject.SetActive(true);

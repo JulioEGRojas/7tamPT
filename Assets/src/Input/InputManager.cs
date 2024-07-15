@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 public class InputManager : MonoBehaviour {
 
@@ -30,6 +27,9 @@ public class InputManager : MonoBehaviour {
         movementAction.action.performed -= OnMovementActionPerformed;
     }
 
+    /// <summary>
+    /// We set the vector value each frame. The player then reads and uses it to move.
+    /// </summary>
     private void Update() {
         moveVector.SetValue(new Vector2(moveJoystick.Horizontal,moveJoystick.Vertical));
     }

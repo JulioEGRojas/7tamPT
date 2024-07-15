@@ -1,7 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Generic movement controller for entities. Could be overriden to handle enemy AI or player movement.
+/// </summary>
 public class EntityController : MonoBehaviour
 {
     [SerializeField] protected float speed;

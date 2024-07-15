@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// Contains callbacks for detecting and acting when an object is picked up.
+/// </summary>
 public class Pickable : MonoBehaviour {
 
     public EventHandler<Picker> onPickedUp;

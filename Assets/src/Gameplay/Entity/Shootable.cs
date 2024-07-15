@@ -1,6 +1,9 @@
 using System;
 using UnityEngine.Events;
 
+/// <summary>
+/// This class allows an entity to be aimed and shot at.
+/// </summary>
 public abstract class Shootable : Damageable {
 
     public EventHandler<Projectile> onShot;

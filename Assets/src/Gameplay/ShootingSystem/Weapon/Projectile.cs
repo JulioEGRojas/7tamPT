@@ -15,9 +15,14 @@ public class Projectile : MonoBehaviour {
 
     public EventHandler<Projectile> onLifeSpanFinished;
 
+    /// <summary>
+    /// Called when a gun shoots this bullet.
+    /// </summary>
+    /// <param name="gun"></param>
     public void OnShotBy(Gun gun) {
         // Rotate towards the gun's forward
         transform.up = gun.transform.up;
+        // Impact 'nothing' after life span finishes
         Invoke(nameof(GhostImpact), lifeSpan);
     }
 
@@ -28,6 +33,9 @@ public class Projectile : MonoBehaviour {
         Impact(null);
     }
 
+    /// <summary>
+    /// Moves in the local up, which is set by the weapon when shot.
+    /// </summary>
     private void FixedUpdate() {
         transform.Translate(Time.fixedDeltaTime * speed * Vector2.up);
     }
@@ -38,8 +46,13 @@ public class Projectile : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Called when a shootable is impacted.
+    /// </summary>
+    /// <param name="shootable"></param>
     public void Impact(Shootable shootable) {
         onLifeSpanFinished?.Invoke(this,this);
+        // Cancels the ghost impact
         CancelInvoke();
         if (!shootable) {
             return;
