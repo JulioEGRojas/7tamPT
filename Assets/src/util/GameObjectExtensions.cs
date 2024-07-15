@@ -40,4 +40,8 @@ public class GameObjectExtensions : MonoBehaviour {
     public void SelfDestroy() {
         Destroy(gameObject);
     }
+
+    public void DestroyComponent(MonoBehaviour component) {
+        Destroy(component);
+    }
 }
