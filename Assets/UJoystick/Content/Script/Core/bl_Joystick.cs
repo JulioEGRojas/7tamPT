@@ -7,7 +7,7 @@ public class bl_Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
 
     [Header("Settings")]
-    [SerializeField, Range(1, 15)]private float Radio = 5;//the ratio of the circumference of the joystick
+    [SerializeField, Range(1, 70)]private float Radio = 5;//the ratio of the circumference of the joystick
     [SerializeField, Range(0.01f, 1)]private float SmoothTime = 0.5f;//return to default position speed
     [SerializeField, Range(0.5f, 4)] private float OnPressScale = 1.5f;//return to default position speed
     public Color NormalColor = new Color(1, 1, 1, 1);
