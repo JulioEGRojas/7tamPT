@@ -11,5 +11,6 @@ public class PlayerShooter : MonoBehaviour {
         equippedWeapon.gameObject.SetActive(false);
         weapon.gameObject.SetActive(true);
         equippedWeapon = weapon;
+        equippedWeapon.OnEquipped();
     }
 }

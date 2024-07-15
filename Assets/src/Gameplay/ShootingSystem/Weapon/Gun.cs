@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 public class Gun : Weapon {
@@ -21,6 +22,9 @@ public class Gun : Weapon {
     /// </summary>
     [Range(0,45)]
     [SerializeField] private float dispersion = 0;
+
+    public EventHandler onShoot;
+    [SerializeField] public UnityEvent onShootEvent;
     
     [Header("Aiming")]
     [SerializeField] private ShootableAutoDetector entityDetector; // This object detects the entities. You can change the size of this object's collider to increase weapon range.
@@ -36,11 +40,13 @@ public class Gun : Weapon {
     private const float TARGET_UPDATE_TICK = 0.1f; 
 
     private void Awake() {
+        onShoot += OnShoot;
         entityDetector.onObjectDetected += TryUpdateTarget;
         entityDetector.onObjectLost += TryUpdateTarget;
     }
 
     private void OnDestroy() {
+        onShoot -= OnShoot;
         entityDetector.onObjectDetected -= TryUpdateTarget;
         entityDetector.onObjectLost -= TryUpdateTarget;
     }
@@ -81,6 +87,10 @@ public class Gun : Weapon {
     }
 
     public void Shoot() {
+        if (bulletsPerShot <= 0) {
+            return;
+        }
+        onShoot?.Invoke(this,null);
         for (int i = 0; i < bulletsPerShot; i++) {
             Projectile projectile = _projectilePool.OccupyOne();
             projectile.transform.position = muzzleLocation.position;
@@ -91,12 +101,24 @@ public class Gun : Weapon {
         }
     }
     
+    /// <summary>
+    /// Returns a projectile to this gun's pool, so it can be reused.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="projectile"></param>
     private void ReturnProjectileToPool(object sender, Projectile projectile) {
         _projectilePool.ReturnToPool(projectile);
         projectile.gameObject.SetActive(false);
         projectile.onLifeSpanFinished -= ReturnProjectileToPool;
     }
+    
+    private void OnShoot(object sender, EventArgs e) {
+        onShootEvent.Invoke();
+    }
 
+    /// <summary>
+    /// This draws a mesh showing the shot dispersion
+    /// </summary>
     private void OnDrawGizmosSelected() {
         Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
         Gizmos.color = transparentRed;

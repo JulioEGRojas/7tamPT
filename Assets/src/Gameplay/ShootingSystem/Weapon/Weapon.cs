@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class Weapon : MonoBehaviour {
+public abstract class Weapon : Equippable {
     
     /// <summary>
     /// Times the gun attacks per second

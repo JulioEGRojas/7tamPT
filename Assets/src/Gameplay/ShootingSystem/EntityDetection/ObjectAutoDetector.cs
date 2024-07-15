@@ -75,6 +75,8 @@ public abstract class ObjectAutoDetector<T> : MonoBehaviour where T : MonoBehavi
         if (isEmpty) {
             return null;
         }
+        // Delete all null entries, 
+        detectedObjects.RemoveAll(x => !x);
         // Order list by closest. WARNING : May be expensive
         T[] orderedObjects = detectedObjects.OrderBy(obj => Vector3.Distance(obj.transform.position, transform.position)).ToArray();
         return orderedObjects.Any() ? orderedObjects.First() : null;
